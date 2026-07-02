@@ -1,0 +1,1026 @@
+:root {
+
+  /* Paleta Hoy Aragón */
+
+  --bg-main: #f3f4f6; /* Gris muy clarito para el fondo general */
+
+  --bg-card: #ffffff;
+
+  --primary-green: #00b37e; /* El verde de ARAGÓN PRIX y ¡VOTA! */
+
+  --primary-green-hover: #00966a;
+
+  --dark-blue: #111827; /* El azul oscuro de las letras */
+
+  --text-muted: #6b7280;
+
+  --border-color: #e5e7eb;
+
+}
+
+
+
+* {
+
+  box-sizing: border-box;
+
+  margin: 0;
+
+  padding: 0;
+
+  font-family: 'Inter', system-ui, sans-serif;
+
+}
+
+
+
+body {
+
+  background-color: var(--bg-main);
+
+  color: var(--dark-blue);
+
+  overflow-x: hidden;
+
+}
+
+
+
+/* --- HERO --- */
+
+.hero {
+
+  text-align: center;
+
+  padding: 3rem 1rem 2rem;
+
+  background: white;
+
+  border-bottom: 2px solid var(--primary-green);
+
+}
+
+
+
+.hero h1 {
+
+  font-size: 2.8rem;
+
+  color: var(--primary-green);
+
+  text-transform: uppercase;
+
+  font-weight: 900;
+
+  letter-spacing: -1px;
+
+  margin-bottom: 0.5rem;
+
+}
+
+
+
+.hero p {
+
+  color: var(--dark-blue);
+
+  font-size: 1.2rem;
+
+  font-weight: 800;
+
+  text-transform: uppercase;
+
+}
+
+
+
+.live-stats {
+
+  display: flex;
+
+  justify-content: center;
+
+  gap: 1.5rem;
+
+  margin-top: 1.5rem;
+
+}
+
+
+
+.stat-badge {
+
+  background: var(--bg-main);
+
+  padding: 0.5rem 1rem;
+
+  border-radius: 20px;
+
+  font-size: 0.9rem;
+
+  font-weight: bold;
+
+  color: var(--dark-blue);
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 0.5rem;
+
+  border: 1px solid var(--border-color);
+
+}
+
+
+
+/* --- BRACKET (Scroll horizontal móvil) --- */
+
+.bracket-container {
+
+  padding: 2rem 0;
+
+  overflow-x: auto;
+
+  scroll-snap-type: x mandatory;
+
+  display: flex;
+
+  gap: 2rem;
+
+  padding-left: 1rem;
+
+  padding-right: 1rem;
+
+}
+
+
+
+.round-column {
+
+  min-width: 320px;
+
+  scroll-snap-align: center;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 1.2rem;
+
+}
+
+
+
+.round-title {
+
+  color: var(--dark-blue);
+
+  text-transform: uppercase;
+
+  font-size: 1rem;
+
+  font-weight: 800;
+
+  text-align: center;
+
+  margin-bottom: 1rem;
+
+  padding-bottom: 0.5rem;
+
+  border-bottom: 2px solid var(--border-color);
+
+}
+
+
+
+.match-card {
+
+  background: var(--bg-card);
+
+  border: 1px solid var(--border-color);
+
+  border-radius: 12px;
+
+  overflow: hidden;
+
+  cursor: pointer;
+
+  transition: transform 0.2s, box-shadow 0.2s;
+
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+
+}
+
+
+
+.match-card:hover {
+
+  transform: translateY(-2px);
+
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+
+  border-color: var(--primary-green);
+
+}
+
+
+
+.team-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.8rem 1rem; /* <-- 0.8rem vertical (móvil), 1rem horizontal */
+  border-bottom: 1px solid var(--border-color);
+  position: relative;
+  background: white;
+  flex: 1; /* Mantenemos esto para que se parta 50/50 exacto */
+}
+
+
+
+.team-row:last-child {
+
+  border-bottom: none;
+
+}
+
+
+.team-name {
+  flex: 1;
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: var(--dark-blue);
+  z-index: 2;
+  text-transform: uppercase;
+
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+
+  padding-right: 0.5rem;
+}
+
+
+
+.team-score {
+
+  font-weight: 800;
+
+  font-size: 1.2rem;
+
+  color: var(--text-muted);
+
+  z-index: 2;
+
+}
+
+
+
+.progress-bg {
+
+  position: absolute;
+
+  top: 0;
+
+  left: 0;
+
+  height: 100%;
+
+  background: #f0fdf4; /* Verde muy clarito para el fondo de la barra ganadora */
+
+  z-index: 1;
+
+  transition: width 0.5s ease-out;
+
+}
+
+
+
+.progress-bg.winning {
+
+  background: #dcfce7;
+
+  border-right: 3px solid var(--primary-green);
+
+}
+
+
+
+/* --- PANTALLA DE VOTACIÓN (Overlay) --- */
+
+.voting-overlay {
+
+  position: fixed;
+
+  top: 0;
+
+  left: 0;
+
+  width: 100vw;
+
+  height: 100vh;
+
+  background: rgba(17, 24, 39, 0.8); /* Fondo semi-transparente oscuro */
+
+  backdrop-filter: blur(5px);
+
+  z-index: 100;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  justify-content: flex-end; /* En móvil, pegado abajo */
+
+  padding: 0;
+
+  animation: fadeIn 0.2s ease-out;
+
+}
+
+
+
+@keyframes fadeIn {
+
+  from { opacity: 0; }
+
+  to { opacity: 1; }
+
+}
+
+
+
+/* El cuadro central de la votación */
+.voting-modal {
+  background: white;
+  width: 100%;
+  border-radius: 24px 24px 0 0;
+  padding: 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  box-shadow: 0 -10px 40px rgba(0,0,0,0.2);
+  animation: slideUp 0.3s ease-out;
+  
+  /* ESTO ES LO QUE ARREGLA EL SCROLL EN MÓVIL */
+  max-height: 90vh; /* Máximo el 90% de la altura de la pantalla */
+  overflow-y: auto; /* Activa el scroll vertical si el contenido es muy largo */
+}
+
+
+
+@keyframes slideUp {
+
+  from { transform: translateY(100%); }
+
+  to { transform: translateY(0); }
+
+}
+
+
+
+.modal-header {
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  border-bottom: 2px solid var(--border-color);
+
+  padding-bottom: 1rem;
+
+}
+
+
+
+.modal-header h2 {
+
+  font-size: 1.5rem;
+
+  color: var(--dark-blue);
+
+  font-weight: 900;
+
+  text-transform: uppercase;
+
+}
+
+
+
+.close-btn {
+
+  background: var(--bg-main);
+
+  border: none;
+
+  color: var(--dark-blue);
+
+  cursor: pointer;
+
+  padding: 0.5rem;
+
+  border-radius: 50%;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+}
+
+
+
+.duel-container {
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 1.5rem;
+
+}
+
+
+
+/* --- MEDIA QUERY PARA ORDENADOR --- */
+
+@media (min-width: 768px) {
+
+  .voting-overlay {
+
+    justify-content: center; /* Centrar en la pantalla en PC */
+
+    padding: 2rem;
+
+  }
+
+  
+
+  .voting-modal {
+
+    max-width: 800px;
+
+    border-radius: 24px; /* Bordes redondos en todos lados */
+
+  }
+
+
+
+  .duel-container {
+
+    flex-direction: row; /* Uno al lado del otro en ordenador */
+
+  }
+
+
+
+  .vote-card {
+
+    flex: 1;
+
+  }
+
+}
+
+
+
+.vote-card {
+
+  background: var(--bg-main);
+
+  border-radius: 16px;
+
+  padding: 1.5rem;
+
+  text-align: center;
+
+  border: 2px solid transparent;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 1rem;
+
+}
+
+
+
+/* Hueco para foto del pueblo (la "cosica") */
+
+.town-image-placeholder {
+
+  height: 120px;
+
+  background: var(--border-color);
+
+  border-radius: 12px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  color: var(--text-muted);
+
+  font-size: 0.9rem;
+
+  text-transform: uppercase;
+
+  letter-spacing: 1px;
+
+  overflow: hidden;
+
+}
+
+
+
+.vote-card h3 {
+
+  font-size: 2rem;
+
+  color: var(--dark-blue);
+
+  text-transform: uppercase;
+
+  font-weight: 900;
+
+}
+
+
+
+.vote-stats {
+
+  display: flex;
+
+  justify-content: space-between;
+
+  font-size: 1.1rem;
+
+  font-weight: bold;
+
+  color: var(--text-muted);
+
+}
+
+
+
+.bar-container {
+
+  height: 16px;
+
+  background: #e5e7eb;
+
+  border-radius: 8px;
+
+  overflow: hidden;
+
+}
+
+
+
+.bar-fill {
+
+  height: 100%;
+
+  background: var(--dark-blue);
+
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+}
+
+
+
+.vote-card.active .bar-fill {
+
+  background: var(--primary-green);
+
+}
+
+
+
+.vote-card.active .vote-stats span {
+
+  color: var(--primary-green);
+
+}
+
+
+
+.vote-btn {
+
+  width: 100%;
+
+  padding: 1rem;
+
+  font-size: 1.2rem;
+
+  font-weight: 900;
+
+  text-transform: uppercase;
+
+  border-radius: 12px;
+
+  border: none;
+
+  background: white;
+
+  color: var(--dark-blue);
+
+  border: 2px solid var(--border-color);
+
+  cursor: pointer;
+
+  transition: all 0.1s;
+
+}
+
+
+
+.vote-card.active .vote-btn {
+
+  background: var(--primary-green);
+
+  color: white;
+
+  border-color: var(--primary-green);
+
+}
+
+
+
+.vote-btn:active {
+
+  transform: scale(0.97);
+
+}
+
+
+
+/* Patrocinadores (Footer) */
+
+/* Patrocinadores (Footer) */
+.sponsors {
+  text-align: center;
+  padding: 2rem 2rem 90px 2rem; /* <-- El truco está aquí: 90px de padding por debajo para saltar el menú */
+  margin-top: auto; 
+  border-top: 1px solid var(--border-color);
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+/* --- ESTILOS EXTRA FALTANTES --- */
+
+/* 1. El mensaje verde que sale cuando el usuario ya ha votado */
+.vote-message {
+  text-align: center;
+  padding: 1rem;
+  background-color: #dcfce7; /* Mismo fondo verde clarito de tu CSS */
+  color: var(--primary-green-hover);
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 0.9rem;
+  margin-top: 1rem;
+}
+
+/* 2. El estilo del botón cuando tú has votado a ese pueblo en concreto */
+.vote-btn.voted {
+  background: var(--primary-green);
+  color: white;
+  border-color: var(--primary-green);
+  box-shadow: 0 4px 10px rgba(0, 179, 126, 0.3);
+}
+/* Estilo para las fotos reales de los pueblos */
+.town-image {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* ============================================
+   NUEVO LAYOUT Y NAVEGACIÓN
+   ============================================ */
+
+.app-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Deja espacio para la bottom nav en móvil */
+.main-content {
+  flex: 1;
+}
+
+/* Badge de votaciones cerradas */
+.stat-badge.closed {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #dc2626;
+}
+
+/* --- DESKTOP NAV (oculto en móvil) --- */
+.desktop-nav {
+  display: none;
+}
+
+.desktop-nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 1.1rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  transition: background 0.15s, color 0.15s;
+}
+
+.desktop-nav-link.active {
+  color: var(--primary-green);
+  background: #f0fdf4;
+}
+
+.desktop-nav-link:hover:not(.active) {
+  background: var(--bg-main);
+  color: var(--dark-blue);
+}
+
+/* --- BOTTOM NAV (visible en móvil) --- */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: white;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  z-index: 50;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.bottom-nav-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  text-decoration: none;
+  color: var(--text-muted);
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: color 0.15s;
+}
+
+.bottom-nav-btn.active {
+  color: var(--primary-green);
+}
+
+/* ============================================
+   VISTA EN DIRECTO
+   ============================================ */
+
+.live-container {
+  display: flex;
+  flex-direction: column;
+
+  min-height: calc(100vh - 220px);
+
+  padding: 1.5rem 1rem;
+  max-width: 580px;
+  margin: 0 auto;
+}
+
+.live-container .round-column {
+  min-width: unset;
+  width: 100%;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+/* Badge "EN DIRECTO" sobre la tarjeta */
+.live-badge {
+  background: var(--primary-green);
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 900;
+  letter-spacing: 1px;
+  padding: 0.2rem 0.6rem;
+  border-radius: 0 0 8px 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.match-card.live-card {
+  border-color: var(--primary-green);
+  position: relative;
+}
+
+/* ============================================
+   VISTA CUADRO / BRACKET (LÍNEAS RECTAS "INTELIGENTES")
+   ============================================ */
+.bracket-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 180px);
+}
+
+.bracket-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: white;
+  border-bottom: 2px solid var(--border-color);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.bracket-nav h2 {
+  font-size: 1.2rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  color: var(--primary-green);
+  margin: 0;
+}
+
+.bracket-nav button {
+  background: var(--bg-main);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 0.5rem;
+  cursor: pointer;
+  color: var(--dark-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bracket-nav button:disabled { opacity: 0.3; }
+
+/* El contenedor del scroll. (SIN scroll-snap, el movimiento absoluto lo hace mejor fluido) */
+.bracket-scroll-area{
+  flex:1;
+  overflow-x:auto;
+  overflow-y:auto;
+
+  scroll-snap-type:x mandatory;
+  scroll-behavior:smooth;
+  overscroll-behavior-x:contain;
+
+  background:var(--bg-main);
+  scrollbar-width:none;
+  position:relative;
+}
+.snap-column{
+    scroll-snap-align:center;
+}
+.bracket-scroll-area::-webkit-scrollbar { display: none; }
+
+/* El lienzo absoluto que contiene todas las fases */
+.bracket-canvas {
+  position: relative;
+  transition: height 0.4s ease-out;
+}
+
+/* Marcador invisible para el IntersectionObserver */
+.scroll-marker {
+  position: absolute;
+  top: 0;
+  height: 1px;
+  width: 1px;
+  pointer-events: none;
+}
+
+/* La capa de las líneas SVG rectas */
+.bracket-lines-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.svg-line-transition {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* El envoltorio físico de cada tarjeta */
+.bracket-card-wrapper {
+  position: absolute;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.bracket-card-wrapper.hidden-card {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* --- ESTADOS DE LA TARJETA --- */
+.match-card {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Estado ESCACHADO (Fases anteriores) */
+.match-card.compact-card {
+  box-shadow: none;
+  border-color: #d1d5db;
+  opacity: 0.8;
+}
+
+.match-card.compact-card:hover {
+  opacity: 1;
+  transform: scale(1.02);
+}
+
+/* Magia: Forzamos a que las filas midan la mitad del poco espacio que les queda */
+.match-card.compact-card .team-row {
+  height: 50%; 
+  padding: 0 0.8rem;
+}
+
+.match-card.compact-card .team-name,
+.match-card.compact-card .team-score {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+.match-card.compact-card .progress-bg {
+  opacity: 0.5; /* Se ve, pero no molesta */
+}
+
+/* Tarjeta vacía (Aún sin generar por el admin) */
+.placeholder-card {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  background: #f9fafb;
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  letter-spacing: 1px;
+}
+/* ============================================
+   RESPONSIVE: DESKTOP
+   ============================================ */
+
+@media (min-width: 768px) {
+  .main-content {
+    padding-bottom: 0;
+  }
+
+  .desktop-nav {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 1.2rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+  }
+
+  .bottom-nav {
+    display: none;
+  }
+
+  .live-container {
+    padding: 2rem;
+    max-width: 640px;
+  }
+  .sponsors {
+    margin-top: auto;
+    padding-bottom: 2rem; /* <-- Restauramos el padding original en ordenador */
+  }
+  
+}
