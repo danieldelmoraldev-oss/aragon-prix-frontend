@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 
-const SERVER_URL = 'http://localhost:3000'
+const SERVER_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:3000'
 
 export default function Admin() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)

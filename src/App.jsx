@@ -5,7 +5,8 @@ import Layout from './Layout.jsx'
 import VotingModal from './VotingModal.jsx'
 import './App.css'
 
-const socket = io('http://192.168.0.18:3000')
+const SERVER_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:3000'
+const socket = io(SERVER_URL)
 
 export default function App() {
   const [matches, setMatches] = useState([])
@@ -25,7 +26,7 @@ export default function App() {
       setSelectedMatch(prev => prev?.id === updatedMatch.id ? updatedMatch : prev)
     })
 
-    fetch('http://192.168.0.18:3000/api/config')
+    fetch(`${SERVER_URL}/api/config`)
       .then(res => res.json())
       .then(data => { if (data) setTimerEndDate(new Date(data.timerEndDate)) })
 

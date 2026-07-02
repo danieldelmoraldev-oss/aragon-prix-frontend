@@ -4,6 +4,7 @@ export default function VotingModal({ match, userVote, onClose, onVote, onShare,
   const total = match.votesA + match.votesB || 1
   const pctA = ((match.votesA / total) * 100).toFixed(1)
   const pctB = ((match.votesB / total) * 100).toFixed(1)
+  const SERVER_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:3000'
 
   return (
     <div className="voting-overlay" onClick={onClose}>
@@ -17,7 +18,7 @@ export default function VotingModal({ match, userVote, onClose, onVote, onShare,
         <div className="duel-container">
           <div className={`vote-card ${match.votesA > match.votesB ? 'active' : ''}`}>
             {match.teamA_image ? (
-              <img src={`http://localhost:3000${match.teamA_image}`} alt={match.teamA} className="town-image" />
+              <img src={`${SERVER_URL}${match.teamA_image}`} alt={match.teamA} className="town-image" />
             ) : (
               <div className="town-image-placeholder">[Foto de {match.teamA}]</div>
             )}
@@ -45,7 +46,7 @@ export default function VotingModal({ match, userVote, onClose, onVote, onShare,
 
           <div className={`vote-card ${match.votesB > match.votesA ? 'active' : ''}`}>
             {match.teamB_image ? (
-              <img src={`http://localhost:3000${match.teamB_image}`} alt={match.teamB} className="town-image" />
+              <img src={`${SERVER_URL}${match.teamB_image}`} alt={match.teamB} className="town-image" />
             ) : (
               <div className="town-image-placeholder">[Foto de {match.teamB}]</div>
             )}
