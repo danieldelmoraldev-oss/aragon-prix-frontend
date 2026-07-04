@@ -44,6 +44,8 @@ export default function VotingModal({ match, userVote, onClose, onVote, onShare,
             </button>
           </div>
 
+          <span className="vs-badge">VS</span>
+
           <div className={`vote-card ${match.votesB > match.votesA ? 'active' : ''}`}>
             {match.teamB_image ? (
               <img src={`${SERVER_URL}${match.teamB_image}`} alt={match.teamB} className="town-image" />
@@ -73,15 +75,7 @@ export default function VotingModal({ match, userVote, onClose, onVote, onShare,
           </div>
         </div>
 
-        <button
-          onClick={onShare}
-          style={{
-            marginTop: '0.5rem', padding: '1rem', borderRadius: '12px',
-            background: '#f3f4f6', color: '#111827', border: '1px solid #e5e7eb',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
-            fontSize: '1rem', fontWeight: 'bold', cursor: 'pointer', width: '100%'
-          }}
-        >
+        <button className="share-btn" onClick={onShare}>
           <Share2 size={20} /> Compartir este duelo
         </button>
       </div>

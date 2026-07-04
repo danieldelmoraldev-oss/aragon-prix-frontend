@@ -1,255 +1,164 @@
 :root {
+  /* Paleta Aragón Prix — Dark Mode Premium */
+  --bg-main: #0a0b0f;
+  --bg-elevated: #121319;
+  --bg-card: #17181f;
+  --bg-card-hover: #1d1f28;
+  --bg-soft: #1a1c24;
 
-  /* Paleta Hoy Aragón */
+  --primary-green: #00ffa3;
+  --primary-green-hover: #00e493;
+  --primary-green-dim: rgba(0, 255, 163, 0.12);
+  --primary-green-glow: rgba(0, 255, 163, 0.35);
 
-  --bg-main: #f3f4f6; /* Gris muy clarito para el fondo general */
+  --dark-blue: #f4f6fa; /* texto principal claro sobre fondo oscuro */
+  --text-muted: #8b8d9a;
+  --text-faint: #565968;
 
-  --bg-card: #ffffff;
+  --border-color: #23252f;
+  --border-color-strong: #2d303c;
 
-  --primary-green: #00b37e; /* El verde de ARAGÓN PRIX y ¡VOTA! */
+  --danger: #ff4d61;
+  --danger-bg: rgba(255, 77, 97, 0.12);
 
-  --primary-green-hover: #00966a;
-
-  --dark-blue: #111827; /* El azul oscuro de las letras */
-
-  --text-muted: #6b7280;
-
-  --border-color: #e5e7eb;
-
+  --shadow-soft: 0 4px 16px -4px rgba(0, 0, 0, 0.5);
+  --shadow-strong: 0 12px 32px -8px rgba(0, 0, 0, 0.6);
+  --shadow-glow: 0 0 0 1px var(--primary-green-dim), 0 8px 24px -8px var(--primary-green-glow);
 }
-
-
 
 * {
-
   box-sizing: border-box;
-
   margin: 0;
-
   padding: 0;
-
   font-family: 'Inter', system-ui, sans-serif;
-
 }
-
-
 
 body {
-
   background-color: var(--bg-main);
-
+  background-image:
+    radial-gradient(circle at 15% 0%, rgba(0, 255, 163, 0.06), transparent 40%),
+    radial-gradient(circle at 85% 15%, rgba(0, 255, 163, 0.04), transparent 35%);
+  background-attachment: fixed;
   color: var(--dark-blue);
-
   overflow-x: hidden;
-
 }
-
-
 
 /* --- HERO --- */
 
 .hero {
-
   text-align: center;
-
-  padding: 3rem 1rem 2rem;
-
-  background: white;
-
-  border-bottom: 2px solid var(--primary-green);
-
+  padding: 2.2rem 1rem 1.5rem;
+  background: linear-gradient(180deg, var(--bg-elevated) 0%, var(--bg-main) 100%);
+  border-bottom: 1px solid var(--border-color);
+  position: relative;
 }
-
-
 
 .hero h1 {
-
-  font-size: 2.8rem;
-
+  font-size: 2.4rem;
   color: var(--primary-green);
-
   text-transform: uppercase;
-
   font-weight: 900;
-
   letter-spacing: -1px;
-
-  margin-bottom: 0.5rem;
-
+  margin-bottom: 0.4rem;
+  text-shadow: 0 0 24px var(--primary-green-glow);
 }
-
-
 
 .hero p {
-
-  color: var(--dark-blue);
-
-  font-size: 1.2rem;
-
-  font-weight: 800;
-
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  font-weight: 700;
   text-transform: uppercase;
-
+  letter-spacing: 0.5px;
 }
-
-
 
 .live-stats {
-
   display: flex;
-
   justify-content: center;
-
-  gap: 1.5rem;
-
-  margin-top: 1.5rem;
-
+  gap: 0.9rem;
+  margin-top: 1.4rem;
+  flex-wrap: wrap;
 }
-
-
 
 .stat-badge {
-
-  background: var(--bg-main);
-
+  background: var(--bg-card);
   padding: 0.5rem 1rem;
-
   border-radius: 20px;
-
-  font-size: 0.9rem;
-
-  font-weight: bold;
-
+  font-size: 0.85rem;
+  font-weight: 700;
   color: var(--dark-blue);
-
   display: flex;
-
   align-items: center;
-
   gap: 0.5rem;
-
-  border: 1px solid var(--border-color);
-
+  border: 1px solid var(--border-color-strong);
 }
-
-
 
 /* --- BRACKET (Scroll horizontal móvil) --- */
 
 .bracket-container {
-
   padding: 2rem 0;
-
   overflow-x: auto;
-
   scroll-snap-type: x mandatory;
-
   display: flex;
-
   gap: 2rem;
-
   padding-left: 1rem;
-
   padding-right: 1rem;
-
 }
-
-
 
 .round-column {
-
   min-width: 320px;
-
   scroll-snap-align: center;
-
   display: flex;
-
   flex-direction: column;
-
   gap: 1.2rem;
-
 }
-
-
 
 .round-title {
-
   color: var(--dark-blue);
-
   text-transform: uppercase;
-
-  font-size: 1rem;
-
+  font-size: 0.95rem;
   font-weight: 800;
-
+  letter-spacing: 1px;
   text-align: center;
-
   margin-bottom: 1rem;
-
-  padding-bottom: 0.5rem;
-
+  padding-bottom: 0.6rem;
   border-bottom: 2px solid var(--border-color);
-
 }
-
-
 
 .match-card {
-
   background: var(--bg-card);
-
   border: 1px solid var(--border-color);
-
-  border-radius: 12px;
-
+  border-radius: 14px;
   overflow: hidden;
-
   cursor: pointer;
-
-  transition: transform 0.2s, box-shadow 0.2s;
-
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+  box-shadow: var(--shadow-soft);
 }
-
-
 
 .match-card:hover {
-
   transform: translateY(-2px);
-
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-
+  box-shadow: var(--shadow-glow);
   border-color: var(--primary-green);
-
 }
-
-
 
 .team-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.8rem 1rem; /* <-- 0.8rem vertical (móvil), 1rem horizontal */
+  padding: 0.8rem 1rem;
   border-bottom: 1px solid var(--border-color);
   position: relative;
-  background: white;
-  flex: 1; /* Mantenemos esto para que se parta 50/50 exacto */
+  background: var(--bg-card);
+  flex: 1;
 }
-
-
 
 .team-row:last-child {
-
   border-bottom: none;
-
 }
-
 
 .team-name {
   flex: 1;
   font-weight: 800;
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   color: var(--dark-blue);
   z-index: 2;
   text-transform: uppercase;
@@ -261,421 +170,299 @@ body {
   padding-right: 0.5rem;
 }
 
-
-
 .team-score {
-
   font-weight: 800;
-
-  font-size: 1.2rem;
-
+  font-size: 1.1rem;
   color: var(--text-muted);
-
   z-index: 2;
-
 }
-
-
 
 .progress-bg {
-
   position: absolute;
-
   top: 0;
-
   left: 0;
-
   height: 100%;
-
-  background: #f0fdf4; /* Verde muy clarito para el fondo de la barra ganadora */
-
+  background: rgba(255, 255, 255, 0.03);
   z-index: 1;
-
   transition: width 0.5s ease-out;
-
 }
-
-
 
 .progress-bg.winning {
-
-  background: #dcfce7;
-
+  background: var(--primary-green-dim);
   border-right: 3px solid var(--primary-green);
-
 }
 
+.team-row.team-winner {
+  background: rgba(0, 255, 163, 0.05);
+}
 
+.team-row.team-winner .team-name {
+  color: var(--primary-green);
+}
 
 /* --- PANTALLA DE VOTACIÓN (Overlay) --- */
 
 .voting-overlay {
-
   position: fixed;
-
   top: 0;
-
   left: 0;
-
   width: 100vw;
-
   height: 100vh;
-
-  background: rgba(17, 24, 39, 0.8); /* Fondo semi-transparente oscuro */
-
-  backdrop-filter: blur(5px);
-
+  background: rgba(4, 5, 8, 0.85);
+  backdrop-filter: blur(8px);
   z-index: 100;
-
   display: flex;
-
   flex-direction: column;
-
   align-items: center;
-
-  justify-content: flex-end; /* En móvil, pegado abajo */
-
+  justify-content: flex-end;
   padding: 0;
-
   animation: fadeIn 0.2s ease-out;
-
 }
-
-
 
 @keyframes fadeIn {
-
   from { opacity: 0; }
-
   to { opacity: 1; }
-
 }
-
-
 
 /* El cuadro central de la votación */
 .voting-modal {
-  background: white;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-color-strong);
+  border-bottom: none;
   width: 100%;
   border-radius: 24px 24px 0 0;
-  padding: 2rem 1.5rem;
+  padding: 1.75rem 1.25rem;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-  box-shadow: 0 -10px 40px rgba(0,0,0,0.2);
+  gap: 1.4rem;
+  box-shadow: 0 -20px 60px rgba(0, 0, 0, 0.6);
   animation: slideUp 0.3s ease-out;
-  
-  /* ESTO ES LO QUE ARREGLA EL SCROLL EN MÓVIL */
-  max-height: 90vh; /* Máximo el 90% de la altura de la pantalla */
-  overflow-y: auto; /* Activa el scroll vertical si el contenido es muy largo */
+
+  max-height: 90vh;
+  overflow-y: auto;
 }
-
-
 
 @keyframes slideUp {
-
   from { transform: translateY(100%); }
-
   to { transform: translateY(0); }
-
 }
-
-
 
 .modal-header {
-
   display: flex;
-
   justify-content: space-between;
-
   align-items: center;
-
-  border-bottom: 2px solid var(--border-color);
-
+  border-bottom: 1px solid var(--border-color);
   padding-bottom: 1rem;
-
 }
-
-
 
 .modal-header h2 {
-
-  font-size: 1.5rem;
-
-  color: var(--dark-blue);
-
+  font-size: 1.3rem;
+  color: var(--primary-green);
   font-weight: 900;
-
   text-transform: uppercase;
-
+  letter-spacing: 0.5px;
 }
-
-
 
 .close-btn {
-
-  background: var(--bg-main);
-
-  border: none;
-
+  background: var(--bg-card);
+  border: 1px solid var(--border-color-strong);
   color: var(--dark-blue);
-
   cursor: pointer;
-
   padding: 0.5rem;
-
   border-radius: 50%;
-
   display: flex;
-
   align-items: center;
-
   justify-content: center;
-
+  transition: border-color 0.15s, color 0.15s;
 }
 
-
+.close-btn:hover {
+  border-color: var(--primary-green);
+  color: var(--primary-green);
+}
 
 .duel-container {
-
   display: flex;
-
   flex-direction: column;
-
-  gap: 1.5rem;
-
+  gap: 1.25rem;
 }
 
-
+.vs-badge {
+  align-self: center;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color-strong);
+  color: var(--primary-green);
+  font-weight: 900;
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+  padding: 0.35rem 0.9rem;
+  border-radius: 20px;
+  text-transform: uppercase;
+  box-shadow: 0 0 16px var(--primary-green-glow);
+}
 
 /* --- MEDIA QUERY PARA ORDENADOR --- */
 
 @media (min-width: 768px) {
-
   .voting-overlay {
-
-    justify-content: center; /* Centrar en la pantalla en PC */
-
+    justify-content: center;
     padding: 2rem;
-
   }
-
-  
 
   .voting-modal {
-
     max-width: 800px;
-
-    border-radius: 24px; /* Bordes redondos en todos lados */
-
+    border-radius: 24px;
+    border-bottom: 1px solid var(--border-color-strong);
   }
-
-
 
   .duel-container {
-
-    flex-direction: row; /* Uno al lado del otro en ordenador */
-
+    flex-direction: row;
+    align-items: center;
   }
-
-
 
   .vote-card {
-
     flex: 1;
-
   }
 
+  .vs-badge {
+    margin: 0 -0.5rem;
+    z-index: 3;
+  }
 }
-
-
 
 .vote-card {
-
-  background: var(--bg-main);
-
-  border-radius: 16px;
-
+  background: var(--bg-card);
+  border-radius: 18px;
   padding: 1.5rem;
-
   text-align: center;
-
-  border: 2px solid transparent;
-
+  border: 1px solid var(--border-color);
   display: flex;
-
   flex-direction: column;
-
   gap: 1rem;
-
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-
+.vote-card.active {
+  border-color: var(--primary-green);
+  box-shadow: var(--shadow-glow);
+}
 
 /* Hueco para foto del pueblo (la "cosica") */
 
 .town-image-placeholder {
-
   height: 120px;
-
-  background: var(--border-color);
-
+  background: var(--bg-soft);
   border-radius: 12px;
-
   display: flex;
-
   align-items: center;
-
   justify-content: center;
-
-  color: var(--text-muted);
-
+  color: var(--text-faint);
   font-size: 0.9rem;
-
   text-transform: uppercase;
-
   letter-spacing: 1px;
-
   overflow: hidden;
-
+  border: 1px solid var(--border-color);
 }
-
-
 
 .vote-card h3 {
-
-  font-size: 2rem;
-
+  font-size: 1.6rem;
   color: var(--dark-blue);
-
   text-transform: uppercase;
-
   font-weight: 900;
-
+  letter-spacing: -0.5px;
 }
-
-
 
 .vote-stats {
-
   display: flex;
-
   justify-content: space-between;
-
-  font-size: 1.1rem;
-
-  font-weight: bold;
-
+  font-size: 1rem;
+  font-weight: 700;
   color: var(--text-muted);
-
 }
-
-
 
 .bar-container {
-
-  height: 16px;
-
-  background: #e5e7eb;
-
+  height: 14px;
+  background: var(--bg-soft);
   border-radius: 8px;
-
   overflow: hidden;
-
+  border: 1px solid var(--border-color);
 }
-
-
 
 .bar-fill {
-
   height: 100%;
-
-  background: var(--dark-blue);
-
+  background: var(--text-faint);
   transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
 }
-
-
 
 .vote-card.active .bar-fill {
-
-  background: var(--primary-green);
-
+  background: linear-gradient(90deg, var(--primary-green-hover), var(--primary-green));
+  box-shadow: 0 0 10px var(--primary-green-glow);
 }
-
-
 
 .vote-card.active .vote-stats span {
-
   color: var(--primary-green);
-
 }
-
-
 
 .vote-btn {
-
   width: 100%;
-
   padding: 1rem;
-
-  font-size: 1.2rem;
-
+  font-size: 1.05rem;
   font-weight: 900;
-
   text-transform: uppercase;
-
+  letter-spacing: 0.5px;
   border-radius: 12px;
-
-  border: none;
-
-  background: white;
-
+  border: 1px solid var(--border-color-strong);
+  background: var(--bg-soft);
   color: var(--dark-blue);
-
-  border: 2px solid var(--border-color);
-
   cursor: pointer;
-
-  transition: all 0.1s;
-
+  transition: all 0.15s;
 }
-
-
 
 .vote-card.active .vote-btn {
-
   background: var(--primary-green);
-
-  color: white;
-
+  color: #04140d;
   border-color: var(--primary-green);
-
+  box-shadow: 0 4px 16px var(--primary-green-glow);
 }
-
-
 
 .vote-btn:active {
-
   transform: scale(0.97);
-
 }
 
+.share-btn {
+  margin-top: 0.25rem;
+  padding: 1rem;
+  border-radius: 12px;
+  background: var(--bg-card);
+  color: var(--dark-blue);
+  border: 1px solid var(--border-color-strong);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  width: 100%;
+  transition: border-color 0.15s, color 0.15s;
+}
 
-
-/* Patrocinadores (Footer) */
+.share-btn:hover {
+  border-color: var(--primary-green);
+  color: var(--primary-green);
+}
 
 /* Patrocinadores (Footer) */
 .sponsors {
   text-align: center;
-  padding: 2rem 2rem 90px 2rem; /* <-- El truco está aquí: 90px de padding por debajo para saltar el menú */
-  margin-top: auto; 
+  padding: 2rem 2rem 90px 2rem;
+  margin-top: auto;
   border-top: 1px solid var(--border-color);
-  color: var(--text-muted);
-  font-size: 0.9rem;
+  color: var(--text-faint);
+  font-size: 0.85rem;
   font-weight: 600;
   text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 /* --- ESTILOS EXTRA FALTANTES --- */
@@ -684,8 +471,9 @@ body {
 .vote-message {
   text-align: center;
   padding: 1rem;
-  background-color: #dcfce7; /* Mismo fondo verde clarito de tu CSS */
-  color: var(--primary-green-hover);
+  background-color: var(--primary-green-dim);
+  color: var(--primary-green);
+  border: 1px solid var(--primary-green);
   border-radius: 12px;
   font-weight: 800;
   font-size: 0.9rem;
@@ -695,10 +483,11 @@ body {
 /* 2. El estilo del botón cuando tú has votado a ese pueblo en concreto */
 .vote-btn.voted {
   background: var(--primary-green);
-  color: white;
+  color: #04140d;
   border-color: var(--primary-green);
-  box-shadow: 0 4px 10px rgba(0, 179, 126, 0.3);
+  box-shadow: 0 4px 16px var(--primary-green-glow);
 }
+
 /* Estilo para las fotos reales de los pueblos */
 .town-image {
   width: 100%;
@@ -706,7 +495,8 @@ body {
   object-fit: cover;
   border-radius: 12px;
   margin-bottom: 1rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-soft);
+  border: 1px solid var(--border-color);
 }
 
 /* ============================================
@@ -726,9 +516,9 @@ body {
 
 /* Badge de votaciones cerradas */
 .stat-badge.closed {
-  background: #fef2f2;
-  border-color: #fecaca;
-  color: #dc2626;
+  background: var(--danger-bg);
+  border-color: rgba(255, 77, 97, 0.4);
+  color: var(--danger);
 }
 
 /* --- DESKTOP NAV (oculto en móvil) --- */
@@ -740,7 +530,7 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  padding: 0.45rem 1.1rem;
+  padding: 0.5rem 1.2rem;
   border-radius: 8px;
   text-decoration: none;
   font-size: 0.85rem;
@@ -753,11 +543,11 @@ body {
 
 .desktop-nav-link.active {
   color: var(--primary-green);
-  background: #f0fdf4;
+  background: var(--primary-green-dim);
 }
 
 .desktop-nav-link:hover:not(.active) {
-  background: var(--bg-main);
+  background: var(--bg-card);
   color: var(--dark-blue);
 }
 
@@ -767,12 +557,13 @@ body {
   bottom: 0;
   left: 0;
   right: 0;
-  height: 60px;
-  background: white;
+  height: 62px;
+  background: rgba(18, 19, 25, 0.92);
+  backdrop-filter: blur(12px);
   border-top: 1px solid var(--border-color);
   display: flex;
   z-index: 50;
-  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
 }
 
 .bottom-nav-btn {
@@ -783,7 +574,7 @@ body {
   justify-content: center;
   gap: 3px;
   text-decoration: none;
-  color: var(--text-muted);
+  color: var(--text-faint);
   font-size: 0.6rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -793,6 +584,7 @@ body {
 
 .bottom-nav-btn.active {
   color: var(--primary-green);
+  text-shadow: 0 0 12px var(--primary-green-glow);
 }
 
 /* ============================================
@@ -826,20 +618,191 @@ body {
 /* Badge "EN DIRECTO" sobre la tarjeta */
 .live-badge {
   background: var(--primary-green);
-  color: white;
+  color: #04140d;
   font-size: 0.65rem;
   font-weight: 900;
   letter-spacing: 1px;
-  padding: 0.2rem 0.6rem;
-  border-radius: 0 0 8px 0;
+  padding: 0.3rem 0.7rem;
+  border-radius: 20px;
   position: absolute;
-  top: 0;
-  left: 0;
+  top: 0.7rem;
+  left: 0.7rem;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  box-shadow: 0 0 12px var(--primary-green-glow);
 }
 
-.match-card.live-card {
-  border-color: var(--primary-green);
+.live-badge::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #04140d;
+  animation: pulseDot 1.4s ease-in-out infinite;
+}
+
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* --- TARJETA DE DUELO VISUAL (LiveMatches) --- */
+
+.duel-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 18px;
+  overflow: hidden;
+  cursor: pointer;
   position: relative;
+  box-shadow: var(--shadow-soft);
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+
+.duel-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-glow);
+  border-color: var(--primary-green);
+}
+
+.duel-visual {
+  position: relative;
+  display: flex;
+  height: 170px;
+  background: var(--bg-soft);
+}
+
+.duel-side {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+}
+
+.duel-side.side-a {
+  clip-path: polygon(0 0, 92% 0, 78% 100%, 0% 100%);
+}
+
+.duel-side.side-b {
+  clip-path: polygon(22% 0, 100% 0, 100% 100%, 8% 100%);
+}
+
+.duel-side img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.duel-side::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 40%, rgba(5, 6, 9, 0.9) 100%);
+}
+
+.duel-side-fallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-faint);
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+  background: var(--bg-soft);
+}
+
+.duel-side.voted-side {
+  outline: 3px solid var(--primary-green);
+  outline-offset: -3px;
+}
+
+.vs-circle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: var(--bg-elevated);
+  border: 2px solid var(--primary-green);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 0.8rem;
+  color: var(--primary-green);
+  z-index: 6;
+  box-shadow: 0 0 20px var(--primary-green-glow);
+}
+
+.duel-team-label {
+  position: absolute;
+  bottom: 0.6rem;
+  z-index: 4;
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  color: var(--dark-blue);
+  letter-spacing: 0.3px;
+  max-width: 46%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.duel-team-label.label-a { left: 0.8rem; text-align: left; }
+.duel-team-label.label-b { right: 0.8rem; text-align: right; }
+
+.duel-team-label .check {
+  color: var(--primary-green);
+}
+
+.duel-stats {
+  padding: 0.9rem 1rem 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.duel-stats-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--text-muted);
+}
+
+.duel-stats-row .pct.leading {
+  color: var(--primary-green);
+}
+
+.duel-bar {
+  height: 10px;
+  border-radius: 6px;
+  background: var(--bg-soft);
+  overflow: hidden;
+  display: flex;
+  border: 1px solid var(--border-color);
+}
+
+.duel-bar-fill {
+  height: 100%;
+  transition: width 0.5s ease-out;
+}
+
+.duel-bar-fill.side-a {
+  background: linear-gradient(90deg, var(--primary-green-hover), var(--primary-green));
+}
+
+.duel-bar-fill.side-b {
+  background: var(--text-faint);
+  margin-left: auto;
 }
 
 /* ============================================
@@ -849,6 +812,7 @@ body {
   display: flex;
   flex-direction: column;
   height: calc(100vh - 180px);
+  background: var(--bg-main);
 }
 
 .bracket-nav {
@@ -856,24 +820,25 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 1rem;
-  background: white;
-  border-bottom: 2px solid var(--border-color);
+  background: var(--bg-elevated);
+  border-bottom: 1px solid var(--border-color);
   position: sticky;
   top: 0;
   z-index: 20;
 }
 
 .bracket-nav h2 {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-weight: 900;
   text-transform: uppercase;
+  letter-spacing: 0.5px;
   color: var(--primary-green);
   margin: 0;
 }
 
 .bracket-nav button {
-  background: var(--bg-main);
-  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color-strong);
   border-radius: 8px;
   padding: 0.5rem;
   cursor: pointer;
@@ -881,6 +846,12 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.bracket-nav button:hover:not(:disabled) {
+  border-color: var(--primary-green);
+  color: var(--primary-green);
 }
 
 .bracket-nav button:disabled { opacity: 0.3; }
@@ -895,7 +866,9 @@ body {
   scroll-behavior:smooth;
   overscroll-behavior-x:contain;
 
-  background:var(--bg-main);
+  background: var(--bg-main);
+  background-image: radial-gradient(circle at 1px 1px, var(--border-color) 1px, transparent 0);
+  background-size: 28px 28px;
   scrollbar-width:none;
   position:relative;
 }
@@ -951,11 +924,15 @@ body {
   flex-direction: column;
 }
 
+.match-card.active-match {
+  box-shadow: var(--shadow-glow);
+}
+
 /* Estado ESCACHADO (Fases anteriores) */
 .match-card.compact-card {
   box-shadow: none;
-  border-color: #d1d5db;
-  opacity: 0.8;
+  border-color: var(--border-color);
+  opacity: 0.75;
 }
 
 .match-card.compact-card:hover {
@@ -965,18 +942,18 @@ body {
 
 /* Magia: Forzamos a que las filas midan la mitad del poco espacio que les queda */
 .match-card.compact-card .team-row {
-  height: 50%; 
+  height: 50%;
   padding: 0 0.8rem;
 }
 
 .match-card.compact-card .team-name,
 .match-card.compact-card .team-score {
-  font-size: 0.8rem;
-  color: #6b7280;
+  font-size: 0.75rem;
+  color: var(--text-muted);
 }
 
 .match-card.compact-card .progress-bg {
-  opacity: 0.5; /* Se ve, pero no molesta */
+  opacity: 0.5;
 }
 
 /* Tarjeta vacía (Aún sin generar por el admin) */
@@ -985,12 +962,14 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-muted);
-  background: #f9fafb;
+  color: var(--text-faint);
+  background: var(--bg-soft);
   font-weight: 800;
   text-transform: uppercase;
   font-size: 0.8rem;
   letter-spacing: 1px;
+  border: 1px dashed var(--border-color-strong);
+  border-radius: 14px;
 }
 /* ============================================
    RESPONSIVE: DESKTOP
@@ -1020,7 +999,7 @@ body {
   }
   .sponsors {
     margin-top: auto;
-    padding-bottom: 2rem; /* <-- Restauramos el padding original en ordenador */
+    padding-bottom: 2rem;
   }
-  
+
 }

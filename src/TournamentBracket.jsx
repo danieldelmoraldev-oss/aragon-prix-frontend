@@ -165,7 +165,7 @@ export default function TournamentBracket() {
                 const path = `M ${startX} ${startPos.centerY} L ${midX} ${startPos.centerY} L ${midX} ${parentPos.centerY} L ${endX} ${parentPos.centerY}`
 
                 return (
-                  <path key={`line-${rIndex}-${mIndex}`} d={path} fill="none" stroke="#cbd5e1" strokeWidth="2"
+                  <path key={`line-${rIndex}-${mIndex}`} d={path} fill="none" stroke="#3a3d4a" strokeWidth="2"
                     className="svg-line-transition"
                     style={{ opacity: startPos.type === 'hidden' ? 0 : 1 }}
                   />
