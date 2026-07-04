@@ -53,14 +53,30 @@ body {
   position: relative;
 }
 
-.hero h1 {
-  font-size: 2.4rem;
-  color: var(--primary-green);
+.hero h1.brand-logo {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-size: 2.3rem;
   text-transform: uppercase;
   font-weight: 900;
+  font-style: italic;
   letter-spacing: -1px;
   margin-bottom: 0.4rem;
-  text-shadow: 0 0 24px var(--primary-green-glow);
+}
+
+.brand-word {
+  color: var(--dark-blue);
+}
+
+.brand-word.brand-accent {
+  color: #04140d;
+  background: linear-gradient(135deg, var(--primary-green-hover), var(--primary-green));
+  padding: 0.05em 0.4em 0.1em;
+  border-radius: 6px;
+  transform: skewX(-10deg);
+  display: inline-block;
+  box-shadow: 0 6px 16px -4px rgba(0, 255, 163, 0.4);
 }
 
 .hero p {
@@ -594,12 +610,28 @@ body {
 .live-container {
   display: flex;
   flex-direction: column;
+  position: relative;
 
   min-height: calc(100vh - 220px);
 
   padding: 1.5rem 1rem;
   max-width: 580px;
   margin: 0 auto;
+}
+
+/* Patrón geométrico abstracto, exclusivo de la pantalla En Directo */
+.live-container::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    repeating-linear-gradient(115deg, rgba(0, 255, 163, 0.07) 0px, rgba(0, 255, 163, 0.07) 1px, transparent 1px, transparent 68px),
+    repeating-linear-gradient(25deg, rgba(255, 255, 255, 0.035) 0px, rgba(255, 255, 255, 0.035) 1px, transparent 1px, transparent 92px),
+    repeating-linear-gradient(-15deg, rgba(255, 255, 255, 0.025) 0px, rgba(255, 255, 255, 0.025) 1px, transparent 1px, transparent 140px);
+  mask-image: linear-gradient(to left, black 0%, black 30%, transparent 72%);
+  -webkit-mask-image: linear-gradient(to left, black 0%, black 30%, transparent 72%);
 }
 
 .live-container .round-column {
@@ -725,20 +757,16 @@ body {
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
-  width: 46px;
-  height: 46px;
-  border-radius: 50%;
-  background: var(--bg-elevated);
-  border: 2px solid var(--primary-green);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 900;
-  font-size: 0.8rem;
-  color: var(--primary-green);
+  transform: translate(-50%, -50%) rotate(-8deg);
   z-index: 6;
-  box-shadow: 0 0 20px var(--primary-green-glow);
+  font-weight: 900;
+  font-style: italic;
+  font-size: 2.1rem;
+  letter-spacing: 1px;
+  color: #fff;
+  -webkit-text-stroke: 1.5px var(--primary-green);
+  text-shadow: 0 3px 0 rgba(0, 0, 0, 0.7), 0 0 22px rgba(0, 255, 163, 0.55);
+  pointer-events: none;
 }
 
 .duel-team-label {

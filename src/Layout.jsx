@@ -5,7 +5,10 @@ export default function Layout({ totalVotes, timeLeft, isVotingOpen, children })
   return (
     <div className="app-wrapper">
       <header className="hero">
-        <h1>Aragón Prix</h1>
+        <h1 className="brand-logo">
+          <span className="brand-word">Aragón</span>
+          <span className="brand-word brand-accent">Prix</span>
+        </h1>
         <p>¿Cuáles son las mejores fiestas de pueblos?</p>
 
         <div className="live-stats">
