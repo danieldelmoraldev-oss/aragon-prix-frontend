@@ -14,6 +14,8 @@ export default function Admin() {
   const [simMin, setSimMin] = useState(1000)
   const [simMax, setSimMax] = useState(50000)
   const [simTargetRound, setSimTargetRound] = useState('octavos')
+  const [simLiveRunning, setSimLiveRunning] = useState(false)
+  const [simLiveSpeed, setSimLiveSpeed] = useState('normal')
   // === FIN MODO SIMULACIÓN: estado ===
 
   // Cargar los partidos cuando entramos al panel
@@ -31,6 +33,10 @@ export default function Admin() {
       fetch(`${SERVER_URL}/api/simulation/status`)
         .then(res => res.json())
         .then(data => setSimStatus(data))
+
+      fetch(`${SERVER_URL}/api/simulation/live/status`)
+        .then(res => res.json())
+        .then(data => setSimLiveRunning(data.running))
       // === FIN MODO SIMULACIÓN ===
     }
   }, [isAuthenticated])
@@ -202,7 +208,57 @@ export default function Admin() {
       alert('Error simulando hasta la fase indicada')
     }
   }
+
+  const SIM_SPEED_OPTIONS = {
+    lento: { intervalMs: 3000, matchesPerTick: 1 },
+    normal: { intervalMs: 1500, matchesPerTick: 2 },
+    rapido: { intervalMs: 700, matchesPerTick: 3 }
+  }
+
+  const handleStartLiveSimulation = async () => {
+    try {
+      const { intervalMs, matchesPerTick } = SIM_SPEED_OPTIONS[simLiveSpeed]
+      const response = await fetch(`${SERVER_URL}/api/simulation/live/start`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ intervalMs, matchesPerTick })
+      })
+      const data = await response.json()
+      if (!response.ok) return alert('Error: ' + data.error)
+      setSimLiveRunning(true)
+    } catch (error) {
+      console.error(error)
+      alert('Error iniciando la simulación de votos en tiempo real')
+    }
+  }
+
+  const handleStopLiveSimulation = async () => {
+    try {
+      await fetch(`${SERVER_URL}/api/simulation/live/stop`, { method: 'POST' })
+      setSimLiveRunning(false)
+    } catch (error) {
+      console.error(error)
+      alert('Error deteniendo la simulación de votos en tiempo real')
+    }
+  }
   // === FIN MODO SIMULACIÓN: handlers ===
+
+  // Resetear el torneo por completo (fuera del Modo Simulación, acción permanente)
+  const handleResetTournament = async () => {
+    if (!window.confirm('⚠️ Esto BORRARÁ todos los partidos y votos actuales, y creará el torneo desde cero (16 duelos de dieciseisavos con nombres genéricos). Los nombres y fotos que hayas puesto se perderán. ¿Seguro?')) return;
+    const confirmText = window.prompt('Escribe RESETEAR (en mayúsculas) para confirmar:')
+    if (confirmText !== 'RESETEAR') { alert('Cancelado'); return; }
+    try {
+      const response = await fetch(`${SERVER_URL}/api/admin/reset-tournament`, { method: 'POST' })
+      const data = await response.json()
+      if (!response.ok) return alert('Error: ' + data.error)
+      alert(`🔄 Torneo reseteado correctamente. Se archivaron ${data.matchesArchived} partidos y ${data.votesArchived} votos para estadísticas futuras.`)
+      window.location.reload()
+    } catch (error) {
+      console.error(error)
+      alert('Error reseteando el torneo')
+    }
+  }
 
   if (!isAuthenticated) {
     return (
@@ -250,6 +306,17 @@ export default function Admin() {
           </div>
         </div>
       )}
+
+      {/* ZONA DE PELIGRO: acciones permanentes, independientes del Modo Simulación */}
+      <div style={{ background: '#17181f', padding: '1.5rem', borderRadius: '12px', border: '2px solid #ff4d61', marginBottom: '2rem' }}>
+        <h2 style={{ margin: '0 0 0.5rem 0', color: '#f4f6fa' }}>⚠️ Zona de Peligro</h2>
+        <p style={{ marginBottom: '1rem', color: '#8b8d9a' }}>
+          Borra todos los partidos y votos actuales y recrea el torneo desde cero, con los 16 duelos iniciales de dieciseisavos. Antes de borrar nada, guarda una copia permanente de los datos actuales (para estadísticas futuras), pero no los restaura automáticamente.
+        </p>
+        <button onClick={handleResetTournament} style={{ padding: '0.7rem 1.2rem', background: '#ff4d61', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>
+          🔄 Resetear Torneo
+        </button>
+      </div>
 
       {/* === INICIO MODO SIMULACIÓN (borrar todo este bloque para quitar la función) === */}
       <div style={{ background: '#17181f', padding: '1.5rem', borderRadius: '12px', border: '2px solid #ffb020', marginBottom: '2rem', boxShadow: '0 0 24px rgba(255,176,32,0.12)' }}>
@@ -311,6 +378,36 @@ export default function Admin() {
               <button onClick={handleAdvanceToPhase} style={{ padding: '0.7rem 1.2rem', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>
                 ⚡ Simular hasta esta fase
               </button>
+            </div>
+
+            <div style={{ background: '#1a1c24', padding: '1rem', borderRadius: '8px', border: '1px solid #23252f', marginBottom: '1rem' }}>
+              <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.6rem', color: '#8b8d9a' }}>
+                Votos en tiempo real: simula votantes llegando poco a poco (suben, bajan o ambas a la vez) para comprobar que la web pública se actualiza sola sin romper nada.
+              </label>
+              <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                <select
+                  value={simLiveSpeed}
+                  onChange={(e) => setSimLiveSpeed(e.target.value)}
+                  disabled={simLiveRunning}
+                  style={{ padding: '0.55rem', background: '#0a0b0f', color: '#f4f6fa', border: '1px solid #2d303c', borderRadius: '6px' }}
+                >
+                  <option value="lento">Velocidad: Lenta</option>
+                  <option value="normal">Velocidad: Normal</option>
+                  <option value="rapido">Velocidad: Rápida</option>
+                </select>
+
+                {!simLiveRunning ? (
+                  <button onClick={handleStartLiveSimulation} style={{ padding: '0.6rem 1.1rem', background: '#00ffa3', color: '#04140d', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>
+                    ▶️ Iniciar votos en tiempo real
+                  </button>
+                ) : (
+                  <button onClick={handleStopLiveSimulation} style={{ padding: '0.6rem 1.1rem', background: '#ff4d61', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>
+                    ⏹️ Detener votos en tiempo real
+                  </button>
+                )}
+
+                {simLiveRunning && <span style={{ color: '#00ffa3', fontWeight: 'bold' }}>● En marcha</span>}
+              </div>
             </div>
 
             <button onClick={handleRestoreReal} style={{ padding: '0.7rem 1.2rem', background: '#ff4d61', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>
