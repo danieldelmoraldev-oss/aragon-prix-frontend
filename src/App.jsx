@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { io } from 'socket.io-client'
-import { Outlet } from 'react-router-dom'
+import { Outlet, useSearchParams } from 'react-router-dom'
 import Layout from './Layout.jsx'
 import VotingModal from './VotingModal.jsx'
 import './App.css'
@@ -15,6 +15,8 @@ export default function App() {
   const [timerEndDate, setTimerEndDate] = useState(null)
   const [timeLeft, setTimeLeft] = useState('')
   const [isVotingOpen, setIsVotingOpen] = useState(true)
+  const [searchParams, setSearchParams] = useSearchParams()
+  const hasOpenedSharedMatch = useRef(false)
 
   const totalGlobalVotes = matches.reduce((total, match) => total + match.votesA + match.votesB, 0)
 
@@ -39,6 +41,26 @@ export default function App() {
       socket.off('timerUpdate')
     }
   }, [])
+
+  // Si el enlace trae ?match=<id> (compartido desde "Compartir este duelo"),
+  // abrimos directamente el modal de votación de ese partido.
+  useEffect(() => {
+    if (hasOpenedSharedMatch.current) return
+    const matchId = searchParams.get('match')
+    if (!matchId || matches.length === 0) return
+
+    const found = matches.find(m => m.id === Number(matchId))
+    if (found) {
+      setSelectedMatch(found)
+      hasOpenedSharedMatch.current = true
+      // Limpiamos el parámetro para que no se reabra si el partido se actualiza
+      setSearchParams(prev => {
+        const next = new URLSearchParams(prev)
+        next.delete('match')
+        return next
+      }, { replace: true })
+    }
+  }, [matches, searchParams, setSearchParams])
 
   useEffect(() => {
     if (!timerEndDate) return
@@ -81,11 +103,13 @@ export default function App() {
 
   const shareMatch = async () => {
     const text = `¡VOTA! ¿Cuáles son las mejores fiestas? ${selectedMatch.teamA} VS ${selectedMatch.teamB} en el Aragón Prix. ¡Entra y apoya a tu pueblo! 👇`
+    // Enlace directo: quien lo abra entra directamente a votar este duelo
+    const voteUrl = `${window.location.origin}/?match=${selectedMatch.id}`
     if (navigator.share) {
-      try { await navigator.share({ title: 'Aragón Prix', text, url: window.location.href }) }
+      try { await navigator.share({ title: 'Aragón Prix', text, url: voteUrl }) }
       catch (err) { console.log('Error compartiendo:', err) }
     } else {
-      navigator.clipboard.writeText(text)
+      navigator.clipboard.writeText(`${text} ${voteUrl}`)
       alert('¡Enlace copiado!')
     }
   }

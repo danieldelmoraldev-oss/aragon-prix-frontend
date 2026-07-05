@@ -27,6 +27,14 @@ export default function TournamentBracket() {
   const [activeRound, setActiveRound] = useState(0)
   const hasAutoSelectedRound = useRef(false)
   const scrollRef = useRef(null)
+  // Mientras hacemos un scroll programático (flechas o auto-selección al entrar),
+  // el IntersectionObserver debe ignorar las posiciones intermedias: si no, "pelea"
+  // con el salto y la vista se queda a medias en vez de llegar a la fase destino.
+  const isProgrammaticScroll = useRef(false)
+  const programmaticScrollTimeout = useRef(null)
+  // El primer salto (al entrar) se hace instantáneo para no cruzar columnas de más
+  // con una animación larga que el observer pueda malinterpretar a mitad de camino.
+  const pendingInstantJump = useRef(true)
 
   // Al entrar al cuadro, nos colocamos en la fase actual del torneo (no siempre en dieciseisavos)
   useEffect(() => {
@@ -38,7 +46,10 @@ export default function TournamentBracket() {
       : [...ROUND_ORDER].reverse().find(r => matches.some(m => m.round === r))
 
     const idx = ROUND_ORDER.indexOf(targetRound)
-    if (idx !== -1) setActiveRound(idx)
+    if (idx !== -1) {
+      pendingInstantJump.current = true
+      setActiveRound(idx)
+    }
     hasAutoSelectedRound.current = true
   }, [matches])
 
@@ -109,6 +120,9 @@ export default function TournamentBracket() {
     if (!container) return
 
     const observer = new IntersectionObserver((entries) => {
+      // Si estamos en medio de un scroll programático, ignoramos lo que detecte
+      // el observer: si no, se pisan entre sí y la vista se queda a medio camino.
+      if (isProgrammaticScroll.current) return
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           const index = Number(entry.target.getAttribute('data-index'))
@@ -118,7 +132,7 @@ export default function TournamentBracket() {
     }, {
       root: container,
       threshold: 1.0,
-      rootMargin: "0px -40% 0px -40%" 
+      rootMargin: "0px -40% 0px -40%"
     })
 
     const markers = container.querySelectorAll('.scroll-marker')
@@ -127,15 +141,26 @@ export default function TournamentBracket() {
     return () => observer.disconnect()
   }, [])
 
-  // 4. Mueve el scroll cuando tocas las flechitas
+  // 4. Mueve el scroll cuando cambia la fase activa (flechitas o auto-selección)
   useEffect(() => {
     if (scrollRef.current) {
       // Centramos la columna activa matemáticamente
       const targetX = (activeRound * COL_W) + 40 - (scrollRef.current.clientWidth / 2) + (CARD_W / 2)
+      const behavior = pendingInstantJump.current ? 'auto' : 'smooth'
+      pendingInstantJump.current = false
+
+      isProgrammaticScroll.current = true
+      clearTimeout(programmaticScrollTimeout.current)
+
       scrollRef.current.scrollTo({
         left: Math.max(0, targetX),
-        behavior: 'smooth'
+        behavior
       })
+
+      // Damos margen a que termine la animación antes de volver a fiarnos del observer
+      programmaticScrollTimeout.current = setTimeout(() => {
+        isProgrammaticScroll.current = false
+      }, behavior === 'smooth' ? 600 : 50)
     }
   }, [activeRound])
 
