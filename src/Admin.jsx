@@ -9,16 +9,29 @@ export default function Admin() {
   const [config, setConfig] = useState(null)
   const [newDate, setNewDate] = useState('')
 
+  // === INICIO MODO SIMULACIÓN: estado (borrar este bloque para quitar la función) ===
+  const [simStatus, setSimStatus] = useState({ active: false, backedUpAt: null })
+  const [simMin, setSimMin] = useState(1000)
+  const [simMax, setSimMax] = useState(50000)
+  const [simTargetRound, setSimTargetRound] = useState('octavos')
+  // === FIN MODO SIMULACIÓN: estado ===
+
   // Cargar los partidos cuando entramos al panel
   useEffect(() => {
     if (isAuthenticated) {
       fetch(`${SERVER_URL}/api/matches`)
         .then(res => res.json())
         .then(data => setMatches(data))
-      
+
       fetch(`${SERVER_URL}/api/config`)
         .then(res => res.json())
         .then(data => setConfig(data))
+
+      // === INICIO MODO SIMULACIÓN (borrar para quitar la función) ===
+      fetch(`${SERVER_URL}/api/simulation/status`)
+        .then(res => res.json())
+        .then(data => setSimStatus(data))
+      // === FIN MODO SIMULACIÓN ===
     }
   }, [isAuthenticated])
 
@@ -125,6 +138,72 @@ export default function Admin() {
     }
   }
 
+  // === INICIO MODO SIMULACIÓN: handlers (borrar este bloque para quitar la función) ===
+  const handleEnableSimulation = async () => {
+    if (!window.confirm('Esto hará una copia de seguridad de los datos reales y activará el Modo Simulación. ¿Continuar?')) return;
+    try {
+      const response = await fetch(`${SERVER_URL}/api/simulation/enable`, { method: 'POST' })
+      const data = await response.json()
+      if (!response.ok) return alert('Error: ' + data.error)
+      setSimStatus({ active: data.active, backedUpAt: data.backedUpAt })
+      alert('🧪 Modo Simulación activado. Copia de seguridad creada.')
+    } catch (error) {
+      console.error(error)
+      alert('Error activando el modo simulación')
+    }
+  }
+
+  const handleRestoreReal = async () => {
+    if (!window.confirm('⚠️ Esto eliminará toda la simulación y restaurará los datos reales. ¿Estás seguro?')) return;
+    try {
+      const response = await fetch(`${SERVER_URL}/api/simulation/restore`, { method: 'POST' })
+      const data = await response.json()
+      if (!response.ok) return alert('Error: ' + data.error)
+      alert('✅ Datos reales restaurados')
+      window.location.reload()
+    } catch (error) {
+      console.error(error)
+      alert('Error restaurando los datos reales')
+    }
+  }
+
+  const handleGenerateSimulation = async () => {
+    if (!window.confirm(`Se generarán votos falsos (entre ${simMin} y ${simMax}) para la ronda actual. ¿Continuar?`)) return;
+    try {
+      const response = await fetch(`${SERVER_URL}/api/simulation/generate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ min: simMin, max: simMax })
+      })
+      const data = await response.json()
+      if (!response.ok) return alert('Error: ' + data.error)
+      alert(`🎲 Simulación generada: ${data.votesInserted} votos en ${data.matchesAffected} partidos`)
+      window.location.reload()
+    } catch (error) {
+      console.error(error)
+      alert('Error generando la simulación')
+    }
+  }
+
+  const handleAdvanceToPhase = async () => {
+    if (!window.confirm(`Esto avanzará automáticamente el torneo (generando votos y usando la lógica real de avance de fase) hasta "${simTargetRound}". ¿Continuar?`)) return;
+    try {
+      const response = await fetch(`${SERVER_URL}/api/simulation/advance-to`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ targetRound: simTargetRound, min: simMin, max: simMax })
+      })
+      const data = await response.json()
+      if (!response.ok) return alert('Error: ' + data.error)
+      alert('🚀 Simulación completada hasta la fase: ' + data.currentRound)
+      window.location.reload()
+    } catch (error) {
+      console.error(error)
+      alert('Error simulando hasta la fase indicada')
+    }
+  }
+  // === FIN MODO SIMULACIÓN: handlers ===
+
   if (!isAuthenticated) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: '#0a0b0f' }}>
@@ -172,6 +251,75 @@ export default function Admin() {
         </div>
       )}
 
+      {/* === INICIO MODO SIMULACIÓN (borrar todo este bloque para quitar la función) === */}
+      <div style={{ background: '#17181f', padding: '1.5rem', borderRadius: '12px', border: '2px solid #ffb020', marginBottom: '2rem', boxShadow: '0 0 24px rgba(255,176,32,0.12)' }}>
+        <h2 style={{ margin: '0 0 0.5rem 0', color: '#f4f6fa' }}>🧪 Modo Simulación</h2>
+        <p style={{ marginBottom: '1rem', color: '#8b8d9a' }}>
+          Estado: <strong style={{ color: simStatus.active ? '#ffb020' : '#00ffa3' }}>{simStatus.active ? 'MODO SIMULACIÓN' : 'MODO REAL'}</strong>
+          {simStatus.active && simStatus.backedUpAt && (
+            <> — copia de seguridad creada el {new Date(simStatus.backedUpAt).toLocaleString('es-ES')}</>
+          )}
+        </p>
+
+        {!simStatus.active ? (
+          <button onClick={handleEnableSimulation} style={{ padding: '0.7rem 1.2rem', background: '#ffb020', color: '#04140d', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>
+            Activar Modo Simulación
+          </button>
+        ) : (
+          <>
+            <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-end', flexWrap: 'wrap', marginBottom: '1rem' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.3rem', color: '#8b8d9a' }}>Votos mínimos</label>
+                <input
+                  type="number"
+                  min="0"
+                  value={simMin}
+                  onChange={(e) => setSimMin(Number(e.target.value))}
+                  style={{ padding: '0.5rem', width: '140px', background: '#1a1c24', color: '#f4f6fa', border: '1px solid #2d303c', borderRadius: '6px' }}
+                />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.3rem', color: '#8b8d9a' }}>Votos máximos</label>
+                <input
+                  type="number"
+                  min="0"
+                  value={simMax}
+                  onChange={(e) => setSimMax(Number(e.target.value))}
+                  style={{ padding: '0.5rem', width: '140px', background: '#1a1c24', color: '#f4f6fa', border: '1px solid #2d303c', borderRadius: '6px' }}
+                />
+              </div>
+              <button onClick={handleGenerateSimulation} style={{ padding: '0.7rem 1.2rem', background: '#00ffa3', color: '#04140d', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>
+                🎲 Generar Simulación
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-end', flexWrap: 'wrap', marginBottom: '1rem' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.3rem', color: '#8b8d9a' }}>Simular hasta la fase</label>
+                <select
+                  value={simTargetRound}
+                  onChange={(e) => setSimTargetRound(e.target.value)}
+                  style={{ padding: '0.55rem', background: '#1a1c24', color: '#f4f6fa', border: '1px solid #2d303c', borderRadius: '6px' }}
+                >
+                  <option value="dieciseisavos">Dieciseisavos</option>
+                  <option value="octavos">Octavos</option>
+                  <option value="cuartos">Cuartos</option>
+                  <option value="semifinales">Semifinales</option>
+                  <option value="final">Final</option>
+                </select>
+              </div>
+              <button onClick={handleAdvanceToPhase} style={{ padding: '0.7rem 1.2rem', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>
+                ⚡ Simular hasta esta fase
+              </button>
+            </div>
+
+            <button onClick={handleRestoreReal} style={{ padding: '0.7rem 1.2rem', background: '#ff4d61', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>
+              🔴 Restaurar datos reales
+            </button>
+          </>
+        )}
+      </div>
+      {/* === FIN MODO SIMULACIÓN === */}
 
       <div style={{ display: 'grid', gap: '2rem' }}>
         {matches.map((match) => (
