@@ -35,14 +35,14 @@ export default function LiveMatches() {
                 <div className="duel-visual">
                   <div className={`duel-side side-a${userVotedThisMatch === 'teamA' ? ' voted-side' : ''}`}>
                     {match.teamA_image ? (
-                      <img src={`${SERVER_URL}${match.teamA_image}`} alt={match.teamA} />
+                      <img src={match.teamA_image} alt={match.teamA} />
                     ) : (
                       <div className="duel-side-fallback">{match.teamA}</div>
                     )}
                   </div>
                   <div className={`duel-side side-b${userVotedThisMatch === 'teamB' ? ' voted-side' : ''}`}>
                     {match.teamB_image ? (
-                      <img src={`${SERVER_URL}${match.teamB_image}`} alt={match.teamB} />
+                      <img src={match.teamB_image} alt={match.teamB} />
                     ) : (
                       <div className="duel-side-fallback">{match.teamB}</div>
                     )}

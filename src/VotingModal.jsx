@@ -18,7 +18,7 @@ export default function VotingModal({ match, userVote, onClose, onVote, onShare,
         <div className="duel-container">
           <div className={`vote-card ${match.votesA > match.votesB ? 'active' : ''}`}>
             {match.teamA_image ? (
-              <img src={`${SERVER_URL}${match.teamA_image}`} alt={match.teamA} className="town-image" />
+              <img src={match.teamA_image} alt={match.teamA} className="town-image"/>
             ) : (
               <div className="town-image-placeholder">[Foto de {match.teamA}]</div>
             )}
@@ -48,7 +48,7 @@ export default function VotingModal({ match, userVote, onClose, onVote, onShare,
 
           <div className={`vote-card ${match.votesB > match.votesA ? 'active' : ''}`}>
             {match.teamB_image ? (
-              <img src={`${SERVER_URL}${match.teamB_image}`} alt={match.teamB} className="town-image" />
+              <img src={match.teamB_image} alt={match.teamB} className="town-image"/>
             ) : (
               <div className="town-image-placeholder">[Foto de {match.teamB}]</div>
             )}
