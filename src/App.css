@@ -623,7 +623,7 @@ body {
 .live-container::before {
   content: '';
   position: fixed;
-  inset: 0;
+  inset: -90px;
   z-index: -1;
   pointer-events: none;
   background-image:
@@ -632,6 +632,17 @@ body {
     repeating-linear-gradient(-15deg, rgba(255, 255, 255, 0.025) 0px, rgba(255, 255, 255, 0.025) 1px, transparent 1px, transparent 140px);
   mask-image: linear-gradient(to left, black 0%, black 30%, transparent 72%);
   -webkit-mask-image: linear-gradient(to left, black 0%, black 30%, transparent 72%);
+  animation: live-bg-drift 60s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+@keyframes live-bg-drift {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(55px, -35px, 0);
+  }
 }
 
 .live-container .round-column {
