@@ -713,11 +713,13 @@ body {
 }
 
 .duel-side.side-a {
-  clip-path: polygon(0 0, 92% 0, 78% 100%, 0% 100%);
+  clip-path: polygon(0 0, 96% 0, 88% 100%, 0% 100%);
+  border-top-left-radius: 17px;
 }
 
 .duel-side.side-b {
-  clip-path: polygon(22% 0, 100% 0, 100% 100%, 8% 100%);
+  clip-path: polygon(12% 0, 100% 0, 100% 100%, 4% 100%);
+  border-top-right-radius: 17px;
 }
 
 .duel-side img {
