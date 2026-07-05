@@ -3,7 +3,7 @@ import { useOutletContext } from 'react-router-dom'
 const SERVER_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:3000'
 
 export default function LiveMatches() {
-  const { matches, userVotes, setSelectedMatch } = useOutletContext()
+  const { matches, userVotes, isVotingOpen, setSelectedMatch } = useOutletContext()
 
   // ¡FILTRAMOS PARA QUEDARNOS SOLO CON LOS ACTIVOS!
   const activeMatches = matches.filter(m => m.status === 'active')
@@ -23,24 +23,30 @@ export default function LiveMatches() {
             const userVotedThisMatch = userVotes[match.id]
             const aLeading = pctA > pctB
             const bLeading = pctB > pctA
+            // La votación global está cerrada pero el admin aún no ha avanzado de fase
+            const isPast = !isVotingOpen
 
             return (
               <div
                 key={match.id}
-                className="duel-card"
+                className={`duel-card${isPast ? ' duel-card-past' : ''}`}
                 onClick={() => setSelectedMatch(match)}
               >
-                <div className="live-badge">EN DIRECTO</div>
+                {isPast ? (
+                  <div className="live-badge live-badge-closed">Votación cerrada</div>
+                ) : (
+                  <div className="live-badge">EN DIRECTO</div>
+                )}
 
                 <div className="duel-visual">
-                  <div className={`duel-side side-a${userVotedThisMatch === 'teamA' ? ' voted-side' : ''}`}>
+                  <div className={`duel-side side-a${userVotedThisMatch === 'teamA' ? ' voted-side' : ''}${isPast && aLeading ? ' side-winner' : ''}`}>
                     {match.teamA_image ? (
                       <img src={match.teamA_image} alt={match.teamA} />
                     ) : (
                       <div className="duel-side-fallback">{match.teamA}</div>
                     )}
                   </div>
-                  <div className={`duel-side side-b${userVotedThisMatch === 'teamB' ? ' voted-side' : ''}`}>
+                  <div className={`duel-side side-b${userVotedThisMatch === 'teamB' ? ' voted-side' : ''}${isPast && bLeading ? ' side-winner' : ''}`}>
                     {match.teamB_image ? (
                       <img src={match.teamB_image} alt={match.teamB} />
                     ) : (
@@ -49,11 +55,11 @@ export default function LiveMatches() {
                   </div>
 
                   <span className="duel-team-label label-a">
-                    {match.teamA}
+                    {isPast && aLeading && '🏆 '}{match.teamA}
                     {userVotedThisMatch === 'teamA' && <span className="check"> ✅</span>}
                   </span>
                   <span className="duel-team-label label-b">
-                    {match.teamB}
+                    {isPast && bLeading && '🏆 '}{match.teamB}
                     {userVotedThisMatch === 'teamB' && <span className="check"> ✅</span>}
                   </span>
 

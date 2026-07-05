@@ -279,6 +279,21 @@ body {
   letter-spacing: 0.5px;
 }
 
+.voting-modal-past .modal-header h2 {
+  color: var(--text-muted);
+}
+
+.modal-past-banner {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color-strong);
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  text-align: center;
+}
+
 .close-btn {
   background: var(--bg-card);
   border: 1px solid var(--border-color-strong);
@@ -691,6 +706,32 @@ body {
   50% { opacity: 0.3; }
 }
 
+/* Badge cuando la votación está cerrada pero el admin aún no ha avanzado de fase */
+.live-badge.live-badge-closed {
+  background: var(--bg-card);
+  color: var(--text-muted);
+  border: 1px solid var(--border-color-strong);
+  box-shadow: none;
+}
+
+.live-badge.live-badge-closed::before {
+  animation: none;
+  background: var(--text-faint);
+}
+
+/* Tarjeta de duelo cuando ya ha pasado (votación cerrada) */
+.duel-card.duel-card-past {
+  border-color: var(--border-color);
+}
+
+.duel-card.duel-card-past .duel-visual {
+  filter: saturate(0.75);
+}
+
+.duel-card.duel-card-past .duel-team-label {
+  color: var(--text-faint);
+}
+
 /* --- TARJETA DE DUELO VISUAL (LiveMatches) --- */
 
 .duel-card {
@@ -762,6 +803,12 @@ body {
 }
 
 .duel-side.voted-side {
+  outline: 3px solid var(--primary-green);
+  outline-offset: -3px;
+}
+
+/* Lado ganador cuando la votación ya está cerrada */
+.duel-side.side-winner {
   outline: 3px solid var(--primary-green);
   outline-offset: -3px;
 }
@@ -965,21 +1012,60 @@ body {
 .match-card {
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 
 .match-card.active-match {
   box-shadow: var(--shadow-glow);
 }
 
-/* Estado ESCACHADO (Fases anteriores) */
+/* Partido que ya ha pasado (finalizado, o votación cerrada sin avanzar de fase aún) */
+.match-card.match-past {
+  border-color: var(--border-color);
+  box-shadow: none;
+}
+
+.match-card.match-past .team-row {
+  filter: saturate(0.75);
+}
+
+.match-card.match-past .team-row:not(.team-winner) .team-name,
+.match-card.match-past .team-row:not(.team-winner) .team-score {
+  color: var(--text-faint);
+}
+
+.match-card.match-past .team-row.team-winner .team-name::before {
+  content: '🏆 ';
+}
+
+.match-status-badge {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 4;
+  background: rgba(10, 11, 15, 0.85);
+  color: var(--text-muted);
+  font-size: 0.6rem;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  padding: 0.3rem 0.6rem;
+  border-radius: 20px;
+  border: 1px solid var(--border-color-strong);
+  pointer-events: none;
+}
+
+/* Estado ESCACHADO (Fases anteriores, vista en miniatura) */
 .match-card.compact-card {
   box-shadow: none;
   border-color: var(--border-color);
-  opacity: 0.75;
+  opacity: 0.7;
+  filter: saturate(0.8);
 }
 
 .match-card.compact-card:hover {
   opacity: 1;
+  filter: saturate(1);
   transform: scale(1.02);
 }
 

@@ -6,14 +6,26 @@ export default function VotingModal({ match, userVote, onClose, onVote, onShare,
   const pctB = ((match.votesB / total) * 100).toFixed(1)
   const SERVER_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:3000'
 
+  // Ya ha pasado si la fase se cerró oficialmente, o si sigue "activa" pero
+  // el temporizador global de votación ya ha expirado (aún sin avanzar de fase)
+  const isPast = match.status === 'finished' || (match.status === 'active' && !isVotingOpen)
+
   return (
     <div className="voting-overlay" onClick={onClose}>
-      <div className="voting-modal" onClick={(e) => e.stopPropagation()}>
+      <div className={`voting-modal ${isPast ? 'voting-modal-past' : ''}`} onClick={(e) => e.stopPropagation()}>
 
         <div className="modal-header">
-          <h2>¡VOTA AHORA!</h2>
+          <h2>{isPast ? (match.status === 'finished' ? 'Resultado Final' : 'Votación Cerrada') : '¡VOTA AHORA!'}</h2>
           <button className="close-btn" onClick={onClose}><X size={24} /></button>
         </div>
+
+        {isPast && (
+          <p className="modal-past-banner">
+            {match.status === 'finished'
+              ? 'Este duelo ya ha terminado. Aquí tienes el resultado final.'
+              : 'La votación de esta fase ya se ha cerrado. Estos son los resultados.'}
+          </p>
+        )}
 
         <div className="duel-container">
           <div className={`vote-card ${match.votesA > match.votesB ? 'active' : ''}`}>
@@ -22,7 +34,7 @@ export default function VotingModal({ match, userVote, onClose, onVote, onShare,
             ) : (
               <div className="town-image-placeholder">[Foto de {match.teamA}]</div>
             )}
-            <h3>{match.teamA}</h3>
+            <h3>{isPast && match.votesA >= match.votesB && '🏆 '}{match.teamA}</h3>
             <div className="vote-stats">
               <span>{match.votesA.toLocaleString()} votos</span>
               <span>{pctA}%</span>
@@ -52,7 +64,7 @@ export default function VotingModal({ match, userVote, onClose, onVote, onShare,
             ) : (
               <div className="town-image-placeholder">[Foto de {match.teamB}]</div>
             )}
-            <h3>{match.teamB}</h3>
+            <h3>{isPast && match.votesB > match.votesA && '🏆 '}{match.teamB}</h3>
             <div className="vote-stats">
               <span>{match.votesB.toLocaleString()} votos</span>
               <span>{pctB}%</span>

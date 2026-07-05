@@ -23,9 +23,24 @@ const GAP_ACTIVE = 24   // Hueco vertical normal
 const GAP_COMPACT = 8   // Hueco vertical escachado
 
 export default function TournamentBracket() {
-  const { matches, userVotes, setSelectedMatch } = useOutletContext()
+  const { matches, userVotes, isVotingOpen, setSelectedMatch } = useOutletContext()
   const [activeRound, setActiveRound] = useState(0)
+  const hasAutoSelectedRound = useRef(false)
   const scrollRef = useRef(null)
+
+  // Al entrar al cuadro, nos colocamos en la fase actual del torneo (no siempre en dieciseisavos)
+  useEffect(() => {
+    if (hasAutoSelectedRound.current || matches.length === 0) return
+
+    const activeMatch = matches.find(m => m.status === 'active')
+    const targetRound = activeMatch
+      ? activeMatch.round
+      : [...ROUND_ORDER].reverse().find(r => matches.some(m => m.round === r))
+
+    const idx = ROUND_ORDER.indexOf(targetRound)
+    if (idx !== -1) setActiveRound(idx)
+    hasAutoSelectedRound.current = true
+  }, [matches])
 
   // 1. Agrupamos los partidos reales que vienen de Mongo
   const roundMap = {}
@@ -199,24 +214,33 @@ export default function TournamentBracket() {
               const total = match.votesA + match.votesB || 1
               const pctA = (match.votesA / total) * 100
               const pctB = (match.votesB / total) * 100
-              const isFinished = match.status === 'finished'
+              // Ya ha pasado si la fase se cerró oficialmente, o si sigue "activa" pero
+              // el temporizador global de votación ya ha expirado (aún sin avanzar de fase)
+              const isPast = match.status === 'finished' || (match.status === 'active' && !isVotingOpen)
+              const isVotable = match.status === 'active' && isVotingOpen
 
               return (
                 <div key={match.id}
                   className={`bracket-card-wrapper ${isHidden ? 'hidden-card' : ''}`}
                   style={{ left: `${rIndex * COL_W + 40}px`, width: `${CARD_W}px`, height: `${pos.height}px`, transform: `translateY(${pos.centerY - pos.height / 2}px)`, zIndex: isActive ? 10 : 2 }}>
-                  <div 
-                    className={`match-card ${isFinished ? 'finished' : ''} ${match.status === 'active' ? 'active-match' : ''} ${isCompact ? 'compact-card' : ''}`}
+                  <div
+                    className={`match-card ${isPast ? 'match-past' : ''} ${isVotable ? 'active-match' : ''} ${isCompact ? 'compact-card' : ''}`}
                     onClick={() => !isHidden && setSelectedMatch(match)}
                     style={{ height: '100%', borderColor: isActive ? 'var(--primary-green)' : '' }}>
-                    
-                    <div className={`team-row ${isFinished && match.votesA >= match.votesB ? 'team-winner' : ''}`}>
+
+                    {isPast && !isCompact && (
+                      <span className="match-status-badge">
+                        {match.status === 'finished' ? 'Finalizado' : 'Votación cerrada'}
+                      </span>
+                    )}
+
+                    <div className={`team-row ${isPast && match.votesA >= match.votesB ? 'team-winner' : ''}`}>
                       <div className={`progress-bg ${pctA > pctB ? 'winning' : ''}`} style={{ width: `${pctA}%` }} />
                       <span className="team-name">{match.teamA || '???'} {userVotes[match.id] === 'teamA' && '✅'}</span>
                       <span className="team-score">{match.teamA ? `${Math.round(pctA)}%` : ''}</span>
                     </div>
-                    
-                    <div className={`team-row ${isFinished && match.votesB > match.votesA ? 'team-winner' : ''}`}>
+
+                    <div className={`team-row ${isPast && match.votesB > match.votesA ? 'team-winner' : ''}`}>
                       <div className={`progress-bg ${pctB > pctA ? 'winning' : ''}`} style={{ width: `${pctB}%` }} />
                       <span className="team-name">{match.teamB || '???'} {userVotes[match.id] === 'teamB' && '✅'}</span>
                       <span className="team-score">{match.teamB ? `${Math.round(pctB)}%` : ''}</span>
