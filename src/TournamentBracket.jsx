@@ -27,14 +27,24 @@ export default function TournamentBracket() {
   const [activeRound, setActiveRound] = useState(0)
   const hasAutoSelectedRound = useRef(false)
   const scrollRef = useRef(null)
-  // Mientras hacemos un scroll programático (flechas o auto-selección al entrar),
-  // el IntersectionObserver debe ignorar las posiciones intermedias: si no, "pelea"
-  // con el salto y la vista se queda a medias en vez de llegar a la fase destino.
+  const activeRoundRef = useRef(0)
+  // Mientras hacemos un scroll programático (flechas, auto-selección al entrar, o el
+  // reajuste tras soltar el gesto), el listener de scroll debe ignorar los eventos
+  // intermedios: si no, "pelea" con el salto y la vista se queda a medias.
   const isProgrammaticScroll = useRef(false)
   const programmaticScrollTimeout = useRef(null)
   // El primer salto (al entrar) se hace instantáneo para no cruzar columnas de más
-  // con una animación larga que el observer pueda malinterpretar a mitad de camino.
+  // con una animación larga.
   const pendingInstantJump = useRef(true)
+  // Ancla la fase desde la que empezó el gesto de scroll actual: mientras dure el
+  // gesto, el rango alcanzable se limita a fase-anterior <-> fase-siguiente, para que
+  // un scroll muy fuerte nunca salte más de una fase de golpe.
+  const gestureAnchorRound = useRef(null)
+  // Marca que el gesto actual ya decidió su fase (tocó la pared de +/-1) para no
+  // reprocesar los eventos de scroll que siga disparando la inercia del navegador.
+  const gestureFinalized = useRef(false)
+  const scrollEndTimer = useRef(null)
+  const scrollAnimFrame = useRef(null)
 
   // Al entrar al cuadro, nos colocamos en la fase actual del torneo (no siempre en dieciseisavos)
   useEffect(() => {
@@ -114,54 +124,153 @@ export default function TournamentBracket() {
   const totalHeight = Math.max((MATCHES_PER_ROUND[activeRound] * (H_ACTIVE + GAP_ACTIVE)) + 80, 300)
   const totalWidth = ROUND_ORDER.length * COL_W + 100
 
-  // 3. IntersectionObserver: Detecta qué fase ves al arrastrar con el dedo
+  // Mantiene el ref sincronizado para poder leer la fase activa desde listeners
+  // que no se vuelven a montar en cada render.
+  useEffect(() => {
+    activeRoundRef.current = activeRound
+  }, [activeRound])
+
+  // Centro matemático (en scrollLeft) de una fase concreta dentro del contenedor
+  const getTargetX = (round, container) =>
+    (round * COL_W) + 40 - (container.clientWidth / 2) + (CARD_W / 2)
+
+  // Animación propia, corta y con easing fijo: el "smooth" nativo del navegador
+  // varía de duración según la distancia y se siente lento al reajustar tras un
+  // scroll fuerte, así que controlamos el tiempo nosotros para que sea siempre rápido.
+  const SNAP_DURATION = 200
+  const animateScrollTo = (container, targetLeft) => {
+    cancelAnimationFrame(scrollAnimFrame.current)
+    const startLeft = container.scrollLeft
+    const change = targetLeft - startLeft
+    if (Math.abs(change) < 1) return
+    const startTime = performance.now()
+    const easeOutCubic = t => 1 - Math.pow(1 - t, 3)
+
+    const step = (now) => {
+      const progress = Math.min((now - startTime) / SNAP_DURATION, 1)
+      container.scrollLeft = startLeft + change * easeOutCubic(progress)
+      if (progress < 1) {
+        scrollAnimFrame.current = requestAnimationFrame(step)
+      }
+    }
+    scrollAnimFrame.current = requestAnimationFrame(step)
+  }
+
+  // Anima/ajusta el scroll horizontal hasta dejar centrada la fase indicada
+  const snapToRound = (round, instant = false) => {
+    const container = scrollRef.current
+    if (!container) return
+    const targetX = Math.max(0, getTargetX(round, container))
+
+    isProgrammaticScroll.current = true
+    clearTimeout(programmaticScrollTimeout.current)
+    cancelAnimationFrame(scrollAnimFrame.current)
+
+    if (instant) {
+      container.scrollLeft = targetX
+      programmaticScrollTimeout.current = setTimeout(() => {
+        isProgrammaticScroll.current = false
+      }, 50)
+    } else {
+      animateScrollTo(container, targetX)
+      // Damos margen a que termine la animación antes de volver a fiarnos del listener
+      programmaticScrollTimeout.current = setTimeout(() => {
+        isProgrammaticScroll.current = false
+      }, SNAP_DURATION + 30)
+    }
+  }
+
+  // 3. Detección de scroll: se basa solo en scrollLeft (nunca en scrollTop, para que
+  // el scroll vertical de los partidos no interfiera), y limita cada gesto a moverse
+  // como mucho una fase hacia delante o hacia atrás, por muy fuerte que sea el scroll.
   useEffect(() => {
     const container = scrollRef.current
     if (!container) return
 
-    const observer = new IntersectionObserver((entries) => {
-      // Si estamos en medio de un scroll programático, ignoramos lo que detecte
-      // el observer: si no, se pisan entre sí y la vista se queda a medio camino.
+    const handleScroll = () => {
       if (isProgrammaticScroll.current) return
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          const index = Number(entry.target.getAttribute('data-index'))
-          setActiveRound(prev => prev !== index ? index : prev)
+
+      if (gestureAnchorRound.current === null) {
+        gestureAnchorRound.current = activeRoundRef.current
+        gestureFinalized.current = false
+      }
+      // Esta ráfaga ya decidió su fase (tocó la pared): ignoramos el resto de la
+      // inercia del navegador en vez de esperar a que termine de decelerar.
+      if (gestureFinalized.current) return
+
+      const anchor = gestureAnchorRound.current
+      const minRound = Math.max(0, anchor - 1)
+      const maxRound = Math.min(ROUND_ORDER.length - 1, anchor + 1)
+      const minX = getTargetX(minRound, container)
+      const maxX = getTargetX(maxRound, container)
+
+      // "Pared" que impide alejarse más de una fase del punto de partida del gesto
+      let hitWall = false
+      if (container.scrollLeft < minX) { container.scrollLeft = minX; hitWall = true }
+      else if (container.scrollLeft > maxX) { container.scrollLeft = maxX; hitWall = true }
+
+      // Si te pasas de scroll y llegas a la pared, ya sabemos la fase destino:
+      // no hace falta esperar a que el navegador termine su inercia para decidir.
+      if (hitWall) {
+        gestureFinalized.current = true
+        gestureAnchorRound.current = null
+        clearTimeout(scrollEndTimer.current)
+        // Bloqueamos ya mismo cualquier evento de scroll que siga llegando por la
+        // inercia del navegador: si no, hay un hueco (hasta que React aplique el
+        // cambio de fase) en el que esa misma inercia puede colarse y encadenar
+        // un segundo salto de fase de golpe.
+        isProgrammaticScroll.current = true
+        clearTimeout(programmaticScrollTimeout.current)
+        const closest = container.scrollLeft <= minX ? minRound : maxRound
+        if (closest !== activeRoundRef.current) {
+          setActiveRound(closest)
+        } else {
+          snapToRound(closest)
         }
-      })
-    }, {
-      root: container,
-      threshold: 1.0,
-      rootMargin: "0px -40% 0px -40%"
-    })
+        return
+      }
 
-    const markers = container.querySelectorAll('.scroll-marker')
-    markers.forEach(m => observer.observe(m))
+      clearTimeout(scrollEndTimer.current)
+      scrollEndTimer.current = setTimeout(() => {
+        const gestureAnchor = gestureAnchorRound.current
+        gestureAnchorRound.current = null
+        if (gestureAnchor === null) return
 
-    return () => observer.disconnect()
+        const candidates = [
+          Math.max(0, gestureAnchor - 1),
+          gestureAnchor,
+          Math.min(ROUND_ORDER.length - 1, gestureAnchor + 1)
+        ]
+        const currentX = container.scrollLeft
+        let closest = gestureAnchor
+        let closestDist = Infinity
+        candidates.forEach(r => {
+          const dist = Math.abs(getTargetX(r, container) - currentX)
+          if (dist < closestDist) { closestDist = dist; closest = r }
+        })
+
+        if (closest !== activeRoundRef.current) {
+          setActiveRound(closest)
+        } else {
+          // La fase no cambió, pero recentramos por si el gesto quedó a medias
+          snapToRound(closest)
+        }
+      }, 80)
+    }
+
+    container.addEventListener('scroll', handleScroll, { passive: true })
+    return () => {
+      container.removeEventListener('scroll', handleScroll)
+      clearTimeout(scrollEndTimer.current)
+      cancelAnimationFrame(scrollAnimFrame.current)
+    }
   }, [])
 
-  // 4. Mueve el scroll cuando cambia la fase activa (flechitas o auto-selección)
+  // 4. Mueve el scroll cuando cambia la fase activa (flechitas, auto-selección o gesto)
   useEffect(() => {
-    if (scrollRef.current) {
-      // Centramos la columna activa matemáticamente
-      const targetX = (activeRound * COL_W) + 40 - (scrollRef.current.clientWidth / 2) + (CARD_W / 2)
-      const behavior = pendingInstantJump.current ? 'auto' : 'smooth'
-      pendingInstantJump.current = false
-
-      isProgrammaticScroll.current = true
-      clearTimeout(programmaticScrollTimeout.current)
-
-      scrollRef.current.scrollTo({
-        left: Math.max(0, targetX),
-        behavior
-      })
-
-      // Damos margen a que termine la animación antes de volver a fiarnos del observer
-      programmaticScrollTimeout.current = setTimeout(() => {
-        isProgrammaticScroll.current = false
-      }, behavior === 'smooth' ? 600 : 50)
-    }
+    const instant = pendingInstantJump.current
+    pendingInstantJump.current = false
+    snapToRound(activeRound, instant)
   }, [activeRound])
 
   return (
@@ -181,12 +290,6 @@ export default function TournamentBracket() {
       <div className="bracket-scroll-area" ref={scrollRef}>
         <div className="bracket-canvas" style={{ width: `${totalWidth}px`, height: `${totalHeight}px` }}>
           
-          {/* Marcadores invisibles para detectar el scroll */}
-          {ROUND_ORDER.map((round, rIndex) => (
-            <div key={`marker-${round}`} className="scroll-marker snap-column" data-index={rIndex}
-              style={{ left: `${rIndex * COL_W + 40 + (CARD_W / 2)}px` }} />
-          ))}
-
           {/* LÍNEAS RECTAS SVG (Por debajo de todo) */}
           <svg className="bracket-lines-svg">
             {layout.map((roundMatches, rIndex) => {

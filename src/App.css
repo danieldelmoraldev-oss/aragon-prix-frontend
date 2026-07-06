@@ -946,14 +946,12 @@ body {
 
 .bracket-nav button:disabled { opacity: 0.3; }
 
-/* El contenedor del scroll. (SIN scroll-snap, el movimiento absoluto lo hace mejor fluido) */
+/* El contenedor del scroll. El snapping/paginado se controla por JS (ver TournamentBracket.jsx) */
 .bracket-scroll-area{
   flex:1;
   overflow-x:auto;
   overflow-y:auto;
 
-  scroll-snap-type:x mandatory;
-  scroll-behavior:smooth;
   overscroll-behavior-x:contain;
 
   background: var(--bg-main);
@@ -962,24 +960,12 @@ body {
   scrollbar-width:none;
   position:relative;
 }
-.snap-column{
-    scroll-snap-align:center;
-}
 .bracket-scroll-area::-webkit-scrollbar { display: none; }
 
 /* El lienzo absoluto que contiene todas las fases */
 .bracket-canvas {
   position: relative;
   transition: height 0.4s ease-out;
-}
-
-/* Marcador invisible para el IntersectionObserver */
-.scroll-marker {
-  position: absolute;
-  top: 0;
-  height: 1px;
-  width: 1px;
-  pointer-events: none;
 }
 
 /* La capa de las líneas SVG rectas */
